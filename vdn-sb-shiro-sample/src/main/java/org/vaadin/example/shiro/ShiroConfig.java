@@ -34,7 +34,7 @@ import org.vaadin.example.Application;
  * @author NCI Admin
  */
 @Configuration
-public class ShiroConfig extends VaadinWebSecurity {
+public class ShiroConfig {
 
     private static Logger log = LoggerFactory.getLogger(Application.class);
 
