@@ -6,31 +6,23 @@ package org.vaadin.example.shiro;
 
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import java.util.ArrayList;
-import java.util.List;
-import javax.annotation.security.DenyAll;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  *
- * @author NCI Admin
+ * @author Bela Oxmyx
  */
 @Route("login")
-//@AnonymousAllowed
-@DenyAll
+@AnonymousAllowed
 public class LoginView extends SecureView {
 
     String[][] aryInfo = {{"USERNAME", "PASSWORD", "ROLES"}, {"joe.coder", "frankzappa", "user"}, {"jill.coder", "moonunit", "admin"}};
@@ -54,24 +46,9 @@ public class LoginView extends SecureView {
         txaInfo.setWidth(400, Unit.PIXELS);
         txaInfo.setValue(sbInfo.toString());
         btnLogin.addClickListener(e -> {
-            //Attempt to login the user.
-            Subject currentUser = shiroSvc.getSubject();
-            if (!currentUser.isAuthenticated()) {
-                UsernamePasswordToken token = new UsernamePasswordToken(txtUserName.getValue(), pwdPassword.getValue());
-                token.setRememberMe(true);
-                try {
-                    currentUser.login(token);
-                    // Handle success                    
-//                    // Redirect to home page for another secured page
-//                    btnLogin.getUI().ifPresent(ui -> {
-//                        ui.navigate("");
-//                    });
-                } catch (AuthenticationException a) {
-                    // Handle authentication failure
-                    Notification.show("Login failed!");
-                }
-            }
+            shiroSvc.login(txtUserName.getValue(), pwdPassword.getValue());
 
+            //Whether or not login succeeds, navigate back to Hello view.
             btnLogin.getUI().ifPresent(ui -> {
                 ui.navigate("");
             });

@@ -6,30 +6,21 @@ package org.vaadin.example.shiro;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
-import java.util.Map;
-import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
- * @author NCI Admin
+ * @author Bela Oxmyx
  */
 @Route("error")
-//@PermitAll
-@DenyAll
+@PermitAll
 public class ErrorView extends SecureView {
 
     H1 h1Errors = new H1();
-    TextField txtErrors = new TextField();
 
     Button btnGoHome = new Button("Go Home");
-    Map<String, Object> errors;
     
     
 //    @Autowired
@@ -42,17 +33,14 @@ public class ErrorView extends SecureView {
             });
         });
         
-        add(h1Errors, txtErrors, btnGoHome);
+        add(h1Errors, btnGoHome);
     }
     
     @Override
     public void otherBeforeEnter(BeforeEnterEvent event) {
-        //Update any error messages from Shiro.
-        errors = shiroSvc.error();
-
         //Display any errors generated from Shiro.
-        h1Errors.setText((String)errors.get("status"));
-        txtErrors.setValue((String)errors.get("message"));
+        h1Errors.setText(shiroSvc.getErrorMsg());
+        
     }
 
     

@@ -8,26 +8,17 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import javax.annotation.security.DenyAll;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.ui.Model;
 
 /**
  *
- * @author NCI Admin
+ * @author Bela Oxmyx
  */
 @Route("")
-//@AnonymousAllowed
-@DenyAll
+@AnonymousAllowed
 public class HelloView extends SecureView {
 
     H1 h1Greeting = new H1();
@@ -66,16 +57,8 @@ public class HelloView extends SecureView {
         logBtnsHLayout.add(btnLogin, btnLogout);
         add(logBtnsHLayout);
 
-//        //Attach this call to Shiro login state.
-//        displayLoggingBtns(loggedInUser);
-
         btnLogout.addClickListener(e -> {
-            //Log out the user, then reload this page.
-            Subject currentUser = shiroSvc.getSubject();
-            currentUser.logout();
-            btnLogout.getUI().ifPresent(ui -> {
-                ui.navigate("");
-            });
+            shiroSvc.logout();
         });
 
         btnAcctInfo.addClickListener(e -> {

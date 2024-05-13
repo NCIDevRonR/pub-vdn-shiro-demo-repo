@@ -18,30 +18,23 @@
  */
 package org.vaadin.example.shiro;
 
-import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.component.notification.Notification;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.CollectionUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.error.ErrorAttributeOptions;
-import org.springframework.boot.web.servlet.error.ErrorAttributes;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.ServletWebRequest;
 
 @Service
 public class ShiroSvc {
-//    Model model;
+
     private static final String ERROR_PATH = "/error";
+
+    private String errorMsg = "";
 
     @SuppressWarnings("Duplicates")
     public String getUserName() {
@@ -61,37 +54,61 @@ public class ShiroSvc {
             }
         }
 
-//        model.addAttribute("name", name);
-
         return name;
     }
 
-    public Subject getSubject() {
+    public boolean subjectHasRole(String role) {
+        boolean result = false;
 
         Subject subject = SecurityUtils.getSubject();
 
-        return subject;
+        if (subject != null) {
+            result = subject.hasRole(role);
+        }
+
+        return result;
     }
-    
+
+    public boolean subjectIsAuthenticated() {
+        boolean result = false;
+
+        Subject subject = SecurityUtils.getSubject();
+
+        if (subject != null) {
+            result = subject.isAuthenticated();
+        }
+
+        return result;
+    }
+
     public String getErrorPath() {
         return ERROR_PATH;
     }
 
-    @Autowired
-    private ErrorAttributes errorAttributes;
-
-//    @RequestMapping(ERROR_PATH)
-    Map<String, Object> error() {
-        VaadinRequest request = VaadinRequest.getCurrent();
-        Map<String, Object> errorMap = errorAttributes.getErrorAttributes(
-                (ServletWebRequest) request,
-                ErrorAttributeOptions.of(ErrorAttributeOptions.Include.MESSAGE));
-//        model.addAttribute("errors", errorMap);
-        return errorMap;
+    public void setErrorMsg(String message) {
+        errorMsg = message;
     }
-    
-    
-    
-    
-    
+
+    public String getErrorMsg() {
+        return errorMsg;
+    }
+
+    public void login(String username, String password) {
+        Subject currentUser = SecurityUtils.getSubject();
+        if (!currentUser.isAuthenticated()) {
+            UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+            try {
+                currentUser.login(token);
+            } catch (AuthenticationException a) {
+                //Notify the subject that the login has failed.
+                Notification.show("Login failed!");
+            }
+        }
+    }
+
+    public void logout() {
+        Subject currentUser = SecurityUtils.getSubject();
+        currentUser.logout();
+    }
+
 }

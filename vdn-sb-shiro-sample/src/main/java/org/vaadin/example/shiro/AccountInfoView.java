@@ -6,23 +6,17 @@ package org.vaadin.example.shiro;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
-import javax.annotation.security.DenyAll;
 import javax.annotation.security.RolesAllowed;
 import org.apache.shiro.subject.Subject;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
- * @author NCI Admin
+ * @author Bela Oxmyx
  */
 @Route("acctInfo")
-//@RolesAllowed("admin")
-@DenyAll
+@RolesAllowed("admin")
 public class AccountInfoView extends SecureView {
     H1 h1PageTitle = new H1();
     String pageTitle = "Account Info Page for: ";
@@ -43,9 +37,7 @@ public class AccountInfoView extends SecureView {
         });
         
         btnLogout.addClickListener(e -> {
-            //Log the user out.
-            Subject currentUser = shiroSvc.getSubject();
-            currentUser.logout();
+            shiroSvc.logout();
             btnLogout.getUI().ifPresent(ui -> {
                 ui.navigate("");
             });

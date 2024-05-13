@@ -6,11 +6,8 @@ package org.vaadin.example.shiro;
 
 /**
  *
- * @author NCI Admin
+ * @author Bela Oxmyx
  */
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -18,7 +15,6 @@ import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class MyCustomRealm extends AuthorizingRealm {
 

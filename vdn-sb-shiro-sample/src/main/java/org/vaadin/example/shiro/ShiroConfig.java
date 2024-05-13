@@ -4,14 +4,11 @@
  */
 package org.vaadin.example.shiro;
 
-import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.shiro.authz.AuthorizationException;
-import org.apache.shiro.realm.Realm;
-import org.apache.shiro.realm.text.TextConfigurationRealm;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
 import org.apache.shiro.spring.web.config.ShiroFilterChainDefinition;
@@ -24,14 +21,16 @@ import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.vaadin.example.Application;
 
 /**
  *
- * @author NCI Admin
+ * @author Bela Oxmyx
  */
 @Configuration
 public class ShiroConfig {
@@ -41,22 +40,6 @@ public class ShiroConfig {
     HashMap<String, String> userPWs;
     HashMap<String, List<String>> userRoles;
 
-    @ExceptionHandler(AuthorizationException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public String handleException(AuthorizationException e, Model model) {
-
-        // you could return a 404 here instead (this is how github handles 403, so the user does NOT know there is a
-        // resource at that location)
-        log.debug("AuthorizationException was thrown", e);
-
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("status", HttpStatus.FORBIDDEN.value());
-        map.put("message", "No message available");
-        model.addAttribute("errors", map);
-
-        return "error";
-    }
-
     @Bean
     public SecurityManager defaultWebSecurityManager(MyCustomRealm realm) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
@@ -65,13 +48,6 @@ public class ShiroConfig {
         return securityManager;
     }
 
-//    @Bean
-//    public ShiroFilterFactoryBean shiroFilter(DefaultWebSecurityManager securityManager) {
-//        ShiroFilterFactoryBean shiroFilter = new ShiroFilterFactoryBean();
-//        shiroFilter.setSecurityManager(securityManager);
-//        // Define your filters and URL security
-//        return shiroFilter;
-//    }
     @Bean
     public MethodInvokingFactoryBean methodInvokingFactoryBean(SecurityManager securityManager) {
         MethodInvokingFactoryBean bean = new MethodInvokingFactoryBean();
@@ -83,10 +59,6 @@ public class ShiroConfig {
     @Bean
     public MyCustomRealm myCustomRealm() {
         MyCustomRealm realm = new MyCustomRealm();
-//        realm.setUserDefinitions("joe.coder=password,user\n" + "jill.coder=password,admin");
-//        
-//        realm.setRoleDefinitions("admin=read,write\n" + "user=read");
-//        realm.setCachingEnabled(true);        
         setupPWsAndRoles();
         realm.setUserPWs(userPWs);
         realm.setUserRoles(userRoles);
@@ -139,20 +111,22 @@ public class ShiroConfig {
         return chainDefinition;
     }
 
-//    @Bean
-//    public MethodInvokingFactoryBean methodInvokingFactoryBean(SecurityManager securityManager) {
-//        MethodInvokingFactoryBean factoryBean = new MethodInvokingFactoryBean();
-//        factoryBean.setStaticMethod("org.apache.shiro.SecurityUtils.setSecurityManager");
-//        factoryBean.setArguments(new Object[]{securityManager});
-//        return factoryBean;
-//    }
-//
     @Bean
     public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilter = new ShiroFilterFactoryBean();
         shiroFilter.setSecurityManager(securityManager);
         // configure URL rules and filters
         return shiroFilter;
+    }
+
+    @ControllerAdvice
+    public class GlobalExceptionHandler {
+
+        @ExceptionHandler(AuthorizationException.class)
+        public ResponseEntity<String> handleAuthorizationException(AuthorizationException ex) {
+            // Log the error or collect it as needed
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access Denied");
+        }
     }
 
 }

@@ -6,7 +6,7 @@ package org.vaadin.example.shiro;
 
 /**
  *
- * @author NCI Admin
+ * @author Bela Oxmyx
  */
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
